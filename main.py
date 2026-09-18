@@ -29,6 +29,7 @@ def pedir_valor():
             print('\033[4;33;41mValor inválido, digite um valor válido!\033[m')
 
     return valor
+
 # Adicionar lançamentos.
 def adicionar_lancamentos():
     descricao = input('Descrição: ').strip()
@@ -47,12 +48,18 @@ def adicionar_lancamentos():
     while categoria == '':
         print('\033[4;33;41mAdicione uma categoria:\033[m')
         categoria = input('Categoria: ').strip()
-# Execução do comando.
-    cursor.execute(
-    'INSERT INTO lancamentos (descricao, valor, tipo, categoria) VALUES (%s,%s,%s,%s)', (descricao, valor, tipo, categoria)
-)   
-    conexao.commit()
-    print('\033[4;32;40mLançamento adicionado com sucesso!\033[m')
+
+    print(f'\n===== Lançamento =====\n{descricao}\n{valor}\n{tipo}\n{categoria}')
+    confirmacao = input('Confirmar lançamento? ').lower().strip()
+
+    if confirmacao in ['sim','ss','s']:
+        cursor.execute(
+            'INSERT INTO lancamentos (descricao, valor, tipo, categoria) VALUES (%s,%s,%s,%s)', (descricao, valor, tipo, categoria)
+        )   
+        conexao.commit()
+        print('\033[4;32;40mLançamento adicionado com sucesso!\033[m')
+    else:
+        print('\033[4;33;41mLançamento cancelado.\033[m\n')
 
 # Listar lançamentos.
 def listar_lancamentos():
@@ -60,6 +67,11 @@ def listar_lancamentos():
         'SELECT * FROM lancamentos'
     )
     resultado = cursor.fetchall()
+
+    if not resultado:
+        print('\033[4;33;41mAinda não há lançamentos!\033[m')
+        return
+    
     for lancamentos in resultado:
         print('=' * 20)
         print('LANÇAMENTO')
@@ -97,7 +109,7 @@ def excluir_lancamentos():
         print('\033[4;33;41mID não encontrado!\033[m')
         return
     confirmacao = input('Tem certeza que deseja excluir? (sim/não): ').lower().strip()
-    if confirmacao == 'sim':
+    if confirmacao in ['sim','ss','s']:
         cursor.execute(
             'DELETE FROM lancamentos WHERE ID = %s', (id,)
         )
@@ -139,11 +151,14 @@ def editar_lancamentos():
         print('\033[4;33;41mAdicione uma categoria:\033[m')
         nova_categoria = input('Nova categoria: ').strip()
 
-    cursor.execute(
+    print(f'===== Edição =====\n{nova_descricao}\n{novo_valor}\n{novo_tipo}\n{nova_categoria}')
+    confirmacao = input('Deseja confirmar as alterações? ').lower().strip()
+    if confirmacao in ['sim', 'ss', 's']:
+        cursor.execute(
         "UPDATE lancamentos SET descricao = %s, valor = %s, tipo = %s, categoria = %s WHERE ID = %s",(nova_descricao, novo_valor, novo_tipo, nova_categoria, id)
-    )
-    conexao.commit()
-    print('\033[4;32;40mLançamento editado com sucesso!\033[m')
+        )
+        conexao.commit()
+        print('\033[4;32;40mLançamento editado com sucesso!\033[m')
 
 # Menu
 while True:
